@@ -5,10 +5,21 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Todos</title>
   </head>
+
   <body>
     <h1>Todos</h1>
-    <div>
-      __todos__
-    </div>
+    <ul id="todos"></ul>
   </body>
+
+  <script>
+    var todos
+
+    window.todos = todos || []
+    const todoContainer = document.querySelector("#todos")
+    window.todos.forEach(todo => {
+      var el = document.createElement("li")
+      el.innerHTML = todo.name
+      todoContainer.appendChild(el)
+    })
+  </script>
 </html>
