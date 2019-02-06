@@ -9,17 +9,39 @@
   <body>
     <h1>Todos</h1>
     <ul id="todos"></ul>
+
+    <div>
+      <input type="text" name="name" placeholder="A new todo"></input>
+      <button id="create" type="submit">Create</button>
+    </div>
   </body>
 
   <script>
-    var todos
+    var todos;
 
-    window.todos = todos || []
-    const todoContainer = document.querySelector("#todos")
-    window.todos.forEach(todo => {
-      var el = document.createElement("li")
-      el.innerHTML = todo.name
-      todoContainer.appendChild(el)
-    })
+    var populateTodos = function() {
+      window.todos = todos || [];
+      var todoContainer = document.querySelector("#todos");
+      todoContainer.innerHTML = null;
+      window.todos.forEach(todo => {
+        var el = document.createElement("li");
+        el.innerHTML = todo.name;
+        todoContainer.appendChild(el);
+      })
+    };
+
+    populateTodos();
+
+    var createTodo = function() {
+      var input = document.querySelector("input[name=name]");
+      if (input.value.length) {
+        todos = [].concat(todos, { name: input.value });
+        fetch("/update", { method: 'POST', body: JSON.stringify({ todos: todos }) });
+        populateTodos();
+        input.value = "";
+      }
+    };
+
+    document.querySelector("#create").addEventListener('click', createTodo);
   </script>
 </html>
