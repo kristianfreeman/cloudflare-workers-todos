@@ -36,7 +36,7 @@
       var input = document.querySelector("input[name=name]");
       if (input.value.length) {
         todos = [].concat(todos, { name: input.value });
-        fetch("/update", { method: 'POST', body: JSON.stringify({ todos: todos }) });
+        fetch("/update", { method: 'PUT', body: JSON.stringify({ todos: todos }) });
         populateTodos();
         input.value = "";
       }
