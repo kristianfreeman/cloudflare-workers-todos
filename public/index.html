@@ -24,7 +24,7 @@
     var todos;
 
     var updateTodos = function() {
-      fetch("/update", { method: 'PUT', body: JSON.stringify({ todos: todos }) });
+      fetch("/", { method: 'PUT', body: JSON.stringify({ todos: todos }) });
       populateTodos();
     }
 
