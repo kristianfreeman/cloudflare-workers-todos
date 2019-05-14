@@ -4,20 +4,11 @@ This is the source code for my Cloudflare Workers project - a simple todo applic
 
 ![](./static/demo.png)
 
-This project has two pieces:
-
-1. The static HTML page, which takes a `todos` array and renders out an interface using plain JavaScript
-2. A Cloudflare Workers script, covered in more detail below
+This project is served entirely from the edge, meaning that `workers/todo.js` is the primary file.
 
 **Note that to experiment with this project, or fork it for your own usage, you'll need access to both Cloudflare Workers and Cloudflare KV.**
 
 An example version of this project can be found at [todo.kristianfreeman.com](https://todo.kristianfreeman.com). In the blog post for this project, as well as any references to URLs below, you should assume that they are _relative_ to the base URL, `todo.kristianfreeman.com`.
-
-## Static HTML
-
-The static HTML for this project, located at `public/index.html`, runs a small script after the `body` tag to take a `todos` data set and generate a UI based on it. The UI is written in pure JavaScript, but could easily be rewritten using React or Vue, as long as your application is set up to read from `window` (read: no SSR, unfortunately). This is a limitation I'm interested in improving on, but for this brief exercise felt pretty out-of-scope.
-
-The application allows you to view todos from the KV cache, add new todos, and update (mark as complete) existing todos. When any updates occur to the local `todos` data, the page makes a `PUT` request to `/`.
 
 ## Workers
 
@@ -30,14 +21,18 @@ This script handles reading and writing todos from KV, as well as making them av
 1. Hooks into the `fetch` event on the root path to call a `handleRequest` function.
 2. Looks for a GET or PUT and routes to the correct function:
 
-When a GET request comes in:
+#### GET requests
 
 1. Reads from the Cloudflare KV cache to get the todo array data. The cache _key_ for this is based on the originating IP, meaning that every IP will have a different todo list.
 2. If the cache key isn't found, a default empty set of todos is generated and pushed into cache.
 3. Before the response is served to the user, the worker renders the text of the static HTML, and replaces `var todos;` with the actual data from the cache.
-4. A new response is constructed, combining the old response headers and status code with the _new_ response body (including the cached todo data). This is returned to the client.
+4. The static HTML is used to generate a `Response` (with a `Content-Type` header set to `text/html`) and rendered on the client.
 
-When a PUT request comes in:
+The static HTML for this project is nested inside of the Workers script. A small script after the `body` tag takes a given `todos` data set (filled in by the Worker script) and generates a UI based on it. The UI is written in pure JavaScript, but could easily be rewritten using React or Vue.
+
+The application allows you to view todos from the KV cache, add new todos, and update (mark as complete) existing todos. When any updates occur to the local `todos` data, the page makes a `PUT` request to `/`.
+
+#### PUT requests
 
 1. Reads the body of the `PUT` request, attempting to parse it as JSON to ensure that it's valid content.
 2. If the content is valid, it is persisted into the Cloudflare KV store.
@@ -46,7 +41,7 @@ When a PUT request comes in:
 
 ## Using this project
 
-This application is intended to be deployed in two stages: first, the static HTML can be deployed via virtually any hosting platform. The example version of this application is deployed with [Netlify](https://netlify.com), but the `public` folder can easily be uploaded and served from S3, GitHub pages, or any number of similar tools. The Workers script in `workers/` should be deployed to Cloudflare Workers, and configured in the following format:
+This application is intended to be deployed in a single stage: the Workers script in `workers/` should be deployed to Cloudflare Workers, and configured in the following format:
 
 - `workers/todos.js` should be matched with your _root_ path: for instance, `todo.kristianfreeman.com`.
 
