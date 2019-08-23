@@ -22,7 +22,7 @@ const html = todos => `
   </body>
 
   <script>
-    window.todos = ${todos || []}
+    window.todos = ${todos}
 
     var updateTodos = function() {
       fetch("/", { method: 'PUT', body: JSON.stringify({ todos: window.todos }) })
@@ -50,7 +50,7 @@ const html = todos => `
 
         var name = document.createElement("span")
         name.className = todo.completed ? "line-through" : ""
-        name.innerHTML = todo.name
+        name.textContent = todo.name
 
         var checkbox = document.createElement("input")
         checkbox.className = "mx-4"
