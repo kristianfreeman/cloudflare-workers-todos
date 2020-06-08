@@ -96,7 +96,7 @@ async function getTodos(request) {
   } else {
     data = JSON.parse(cache)
   }
-  const body = html(JSON.stringify(data.todos || []))
+  const body = html(JSON.stringify(data.todos || []).replace(/</g, "\\u003c"))
   return new Response(body, {
     headers: { 'Content-Type': 'text/html' },
   })
